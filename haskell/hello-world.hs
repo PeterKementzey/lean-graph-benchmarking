@@ -22,8 +22,6 @@ exampleGraph8 :: Graph
     ]
 
 
-testGraph :: [Char]
-testGraph = "../generated-graphs/test-topsort-gen.txt"
 
 createGraph :: (Vertex, [Edge]) -> Graph
 createGraph (nodeCount, edgeList) =
@@ -46,10 +44,23 @@ parseFile filePath = do
     return (createGraph parsed)
 
 
+bitcoinSize = "../generated-graphs/stanford-bitcoin-sized-topsort-gen.txt"
+maximumSize = "../generated-graphs/maximum-working-size-topsort-gen.txt"
+mediumDense = "../generated-graphs/medium-dense-topsort-gen.txt"
+mediumVeryDense = "../generated-graphs/medium-very-dense-topsort-gen.txt"
+mediumSparse = "../generated-graphs/medium-sparse-topsort-gen.txt"
+mediumVerySparse = "../generated-graphs/medium-very-sparse-topsort-gen.txt"
+smallDense = "../generated-graphs/small-dense-topsort-gen.txt"
+smallSparse = "../generated-graphs/small-sparse-topsort-gen.txt"
+
+
+testGraph :: [Char]
+testGraph = "../generated-graphs/test-topsort-gen.txt"
+
 -- Note: can use command line arguments I think like this: (args !! 0)
 main :: IO ()
 main = do
-    let filePath = testGraph
+    let filePath = smallDense
 
     graph <- parseFile filePath
     
