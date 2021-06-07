@@ -1,15 +1,14 @@
 #!/usr/bin/python3
 
-import random
+import random, sys
 
-def generateTopSortGraph (nodeCount, edgeCount, fileName):
+def generateDAG (nodeCount, edgeCount, fileName):
     # nodeCount = 20
     # edgeCount = 200
 
     nodes = list(range(nodeCount))
 
-    # FIXME uncomment
-    # random.shuffle(nodes) # create a random order for the nodes, this will be one possible result for the topological sorting and this will guarantee that there are no cycles
+    random.shuffle(nodes) # create a random order for the nodes, this will be one possible result for the topological sorting and this will guarantee that there are no cycles
 
     # print(nodes)
 
@@ -26,17 +25,18 @@ def generateTopSortGraph (nodeCount, edgeCount, fileName):
         orderedPair = newPair if getPlaceInOrder(newPair[0]) <= getPlaceInOrder(newPair[1]) else swapTuple(newPair)
         edges.append(orderedPair)
 
-    import sys
     sys.stdout = open(fileName, 'w')
 
     for pair in edges:
         print (str(pair[0]) + " " + str(pair[1]))
     
     sys.stdout.close()
+    
     sys.stdout = open(fileName + "-original-sequence.txt", 'w')
-    print(nodes)
+    sortedOrder = list(enumerate(nodes)); sortedOrder.sort(key = lambda x : x[1]); sortedOrder = list(map(lambda x : x[0], sortedOrder))
+    print(sortedOrder)
     sys.stdout.close()
 
 
 
-generateTopSortGraph(5, 10, "bug-search.txt")
+generateDAG(20, 10000, "topsort-gen.txt")
