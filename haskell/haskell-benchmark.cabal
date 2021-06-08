@@ -1,0 +1,24 @@
+name:                haskell-benchmark
+version:             0.1.0.0
+-- TODO adjust the following
+-- synopsis:
+-- description:
+-- homepage:            https://github.com/jlimperg/haskell-benchmark#readme
+-- license:             BSD3
+-- license-file:        LICENSE
+-- author:              Jannis Limperg
+-- maintainer:          jannis@limperg.de
+-- copyright:           (C) 2021 Jannis Limperg
+category:            Education
+build-type:          Simple
+cabal-version:       >=1.10
+extra-source-files:  README.md
+
+executable haskell-benchmark
+  hs-source-dirs:      .
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , containers
+                     , criterion-measurement
+                     , deepseq

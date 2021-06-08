@@ -1,3 +1,5 @@
+module Main where
+
 import Data.Graph
 import System.IO
 import Criterion.Measurement
@@ -38,7 +40,7 @@ parseLines :: [String] -> (Int, [(Int, Int)])
 parseLines (nodeCount:edgeList) = (read nodeCount, parseEdgeList edgeList)
 parseLines [] = error "Cannot parse empty file"
 
-parseFile :: FilePath -> IO Graph 
+parseFile :: FilePath -> IO Graph
 parseFile filePath = do
     contents <- readFile filePath
     let linesOfFile = lines contents
@@ -73,14 +75,15 @@ runTest = do
 
 -- main = secs <$> time_ someIOFunction >>= print
 
+main :: IO ()
 main = do
     graph <- parseFile filePath
     evaluate (rnf graph)
     initializeTime
-    startTime <- getTime 
+    startTime <- getTime
     deepseq (topSort graph) (pure ())
-    endTime <- getTime 
-    print (secs (endTime - startTime))
+    endTime <- getTime
+    putStrLn (secs (endTime - startTime))
 
 -- main = defaultMain [
 --   bgroup "topsort" [ bench "parse graph"  $ nfIO parseGraphTest
