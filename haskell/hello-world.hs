@@ -52,21 +52,31 @@ mediumSparse = "../generated-graphs/medium-sparse-topsort-gen.txt"
 mediumVerySparse = "../generated-graphs/medium-very-sparse-topsort-gen.txt"
 smallDense = "../generated-graphs/small-dense-topsort-gen.txt"
 smallSparse = "../generated-graphs/small-sparse-topsort-gen.txt"
-
-
 testGraph :: [Char]
 testGraph = "../generated-graphs/test-topsort-gen.txt"
 
 -- Note: can use command line arguments I think like this: (args !! 0)
-main :: IO ()
-main = do
-    let filePath = smallDense
 
+
+
+readGraph = do
+    let filePath = maximumSize
     graph <- parseFile filePath
-    
-    print (topSort graph)
+    return (seq graph 0)
+
+runTest = do
+    let filePath = maximumSize
+    graph <- parseFile filePath
+    return (seq (topSort graph) 7)
+
+
+main = do
+    r <- runTest
+    print r
 
 -- main = defaultMain [
---   bgroup "fib" [ bench "1"  $ whnf show (topSort exampleGraph8)
+--   bgroup "topsort" [ bench "read graph"  $ nfIO readGraph
+--                ],
+--   bgroup "topsort" [ bench "read and topsort"  $ nfIO runTest
 --                ]
 --   ]

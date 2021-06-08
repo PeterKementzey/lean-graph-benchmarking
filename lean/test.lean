@@ -1,4 +1,5 @@
-import Graph
+import Graph.Parser
+import Graph.TopologicalSort
 
 def e : Graph Nat Nat := (Graph.empty.addVertex 0).1
 
@@ -13,9 +14,11 @@ def smallSparse := "../generated-graphs/small-sparse-topsort-gen.txt"
 
 def main : IO Unit := do
 
-  let filePath := smallDense
+  let filePath := maximumSize
 
   let graph <- parseGraphFromEdgeList filePath
   -- IO.println (graph)
   -- IO.println (graph.depthFirstTraversalOrderWithLeaving 0)
-  IO.println (graph.topSort)
+
+  let sorted := graph.topSort
+  IO.println (sorted.get![0])
