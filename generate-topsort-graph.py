@@ -30,7 +30,7 @@ def generateDAG (nodeCount, edgeCount, fileName):
     print(sortedOrder)
     sys.stdout.close()
 
-
+# TODO use seed to generate predictable graph
 
 # bitcoinSize = generateDAG(5881, 35592, "generated-graphs/stanford-bitcoin-sized")
 maximumSize = generateDAG(6600, 450000, "generated-graphs/maximum-working-size") # these values seem to be close to the max the system can handle with crashes not happening too often

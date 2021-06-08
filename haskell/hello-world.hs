@@ -1,6 +1,8 @@
 import Data.Graph
 import System.IO
--- import Criterion.Main
+import Criterion.Measurement
+import Control.DeepSeq
+import Control.Exception
 
 graphFromTutorial :: Graph
 nodeFromVertex :: Vertex -> ([Char], Char, [Char])
@@ -57,26 +59,32 @@ testGraph = "../generated-graphs/test-topsort-gen.txt"
 
 -- Note: can use command line arguments I think like this: (args !! 0)
 
+filePath = maximumSize
 
-
-readGraph = do
-    let filePath = maximumSize
+parseGraphTest :: IO Int
+parseGraphTest = do
     graph <- parseFile filePath
     return (seq graph 0)
 
+runTest :: IO Int
 runTest = do
-    let filePath = maximumSize
     graph <- parseFile filePath
     return (seq (topSort graph) 7)
 
+-- main = secs <$> time_ someIOFunction >>= print
 
 main = do
-    r <- runTest
-    print r
+    graph <- parseFile filePath
+    evaluate (rnf graph)
+    initializeTime
+    startTime <- getTime 
+    deepseq (topSort graph) (pure ())
+    endTime <- getTime 
+    print (secs (endTime - startTime))
 
 -- main = defaultMain [
---   bgroup "topsort" [ bench "read graph"  $ nfIO readGraph
+--   bgroup "topsort" [ bench "parse graph"  $ nfIO parseGraphTest
 --                ],
---   bgroup "topsort" [ bench "read and topsort"  $ nfIO runTest
+--   bgroup "topsort" [ bench "parse and topsort"  $ nfIO runTest
 --                ]
 --   ]
