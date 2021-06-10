@@ -33,7 +33,7 @@ def generateDAG (nodeCount, edgeCount, fileName):
 # TODO use seed to generate predictable graph
 
 # bitcoinSize = generateDAG(5881, 35592, "generated-graphs/stanford-bitcoin-sized")
-maximumSize = generateDAG(6600, 450000, "generated-graphs/maximum-working-size") # these values seem to be close to the max the system can handle with crashes not happening too often
+# maximumSize = generateDAG(6600, 450000, "generated-graphs/maximum-working-size") # these values seem to be close to the max the system can handle with crashes not happening too often
 # mediumDense = generateDAG(3000, 8500000, "generated-graphs/medium-dense")
 # mediumVeryDense = generateDAG(3000, 12000000, "generated-graphs/medium-very-dense")
 # mediumSparse = generateDAG(3000, 500000, "generated-graphs/medium-sparse")
@@ -42,3 +42,5 @@ maximumSize = generateDAG(6600, 450000, "generated-graphs/maximum-working-size")
 # smallSparse = generateDAG(500, 2000, "generated-graphs/small-sparse")
 
 # testGraph = generateDAG(10, 8, "generated-graphs/test")
+
+hugeSize = generateDAG(30000, 2000000, "generated-graphs/huge")

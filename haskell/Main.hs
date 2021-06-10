@@ -58,10 +58,11 @@ smallDense = "../generated-graphs/small-dense-topsort-gen.txt"
 smallSparse = "../generated-graphs/small-sparse-topsort-gen.txt"
 testGraph :: [Char]
 testGraph = "../generated-graphs/test-topsort-gen.txt"
+huge = "../generated-graphs/huge-topsort-gen.txt"
 
 -- Note: can use command line arguments I think like this: (args !! 0)
 
-filePath = maximumSize
+filePath = huge
 
 parseGraphTest :: IO Int
 parseGraphTest = do
@@ -79,6 +80,7 @@ main :: IO ()
 main = do
     graph <- parseFile filePath
     evaluate (rnf graph)
+    putStrLn filePath
     initializeTime
     startTime <- getTime
     deepseq (topSort graph) (pure ())
