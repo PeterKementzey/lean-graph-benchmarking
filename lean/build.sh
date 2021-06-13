@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm -rf build
+# rm -rf build # FIXME reenable this
 
 git clone https://github.com/PeterKementzey/graph-library-for-lean4 build/deps/Graph
 
