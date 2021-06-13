@@ -83,7 +83,8 @@ main = do
     putStrLn filePath
     initializeTime
     startTime <- getTime
-    deepseq (topSort graph) (pure ())
+    let sorted = deepseq (topSort graph) (topSort graph)
+    print (last sorted)
     endTime <- getTime
     putStrLn (secs (endTime - startTime))
 
