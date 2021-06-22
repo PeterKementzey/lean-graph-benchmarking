@@ -29,10 +29,14 @@ def generateDAG (nodeCount, edgeCount, fileName, seed):
         print (str(pair[0]) + " " + str(pair[1]), file=fileHandle)
     fileHandle.close()
 
-    fileHandle = open(graphDirectory + fileName + "-topsorted-sequence.txt", 'w')
-    sortedOrder = list(enumerate(nodes)); sortedOrder.sort(key = lambda x : x[1]); sortedOrder = list(map(lambda x : x[0], sortedOrder))
-    print(sortedOrder, file=fileHandle)
-    fileHandle.close()
+    # This part of the code prints the topological ordering that the graph is based on
+    # fileHandle = open(graphDirectory + fileName + "-topsorted-sequence.txt", 'w')
+    # sortedOrder = list(enumerate(nodes)); sortedOrder.sort(key = lambda x : x[1]); sortedOrder = list(map(lambda x : x[0], sortedOrder))
+    # print(sortedOrder, file=fileHandle)
+    # fileHandle.close()
+
+def printControlMessage(msg):
+    print("\033[96m\n\n" + msg + "\n\n\033[0m")
 
 graphParameters = [
     (500, 2000, "small-sparse"),
@@ -45,16 +49,37 @@ graphParameters = [
     (30000, 2000000, "huge")
 ]
 
-# remove all generated graphs first
 
-subprocess.run("rm -f" + graphDirectory + "*.txt", shell=True)
+# remove all previously generated graphs first
+
+subprocess.run("rm -f " + graphDirectory + "*.txt", shell=True)
+
 
 # build generated graphs
 
-# for p in graphParameters:
-#     for i in (range(10)):
-        
+printControlMessage("Generating graphs:")
+
+fileNames = []
+
+for p in graphParameters:
+    for i in (range(3)):
+        fileNames.append(p[2] + str(i))
+        print(fileNames[-1])
+        generateDAG(p[0], p[1], fileNames[-1], i)
+
 
 # build lean and haskell
 
+printControlMessage("Building Lean:")
+subprocess.run("cd lean; ./build.sh ", shell=True)
+printControlMessage("Building Haskell:")
+subprocess.run("cd haskell; stack clean; stack build ", shell=True)
+
+
 # run tests
+
+printControlMessage("Running Lean Benchmarks")
+subprocess.run("cd lean; ./build/bin/Benchmark ", shell=True)
+printControlMessage("Running Haskell Benchmarks")
+subprocess.run("cd haskell; stack run ", shell=True)
+
