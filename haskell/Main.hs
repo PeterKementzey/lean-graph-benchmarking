@@ -6,27 +6,6 @@ import Criterion.Measurement
 import Control.DeepSeq
 import Control.Exception
 
-graphFromTutorial :: Graph
-nodeFromVertex :: Vertex -> ([Char], Char, [Char])
-vertexFromKey :: Char -> Maybe Vertex
-(graphFromTutorial, nodeFromVertex, vertexFromKey) = graphFromEdges [("a", 'a', ['b']), ("b", 'b', ['c']), ("c", 'c', [])]
-
-exampleGraph8 :: Graph
-(exampleGraph8, _, _) = graphFromEdges [
-    (0, 0, [1]),
-    (1,1,[2,5,4,7]),
-    (2,2,[3,6]),
-    (3,3,[9]),
-    (4,4,[]),
-    (5,5,[8]),
-    (6,6,[8,9]),
-    (7,7,[8]),
-    (8,8,[]),
-    (9,9,[])
-    ]
-
-
-
 createGraph :: (Vertex, [Edge]) -> Graph
 createGraph (nodeCount, edgeList) =
     let bounds = (0, nodeCount-1) in
@@ -36,7 +15,7 @@ parseEdgeList :: [String] -> [(Int, Int)]
 parseEdgeList (edge:edgeList) = let pair = words edge in (read (head pair), read (pair !! 1)) : parseEdgeList edgeList
 parseEdgeList [] = []
 
-parseLines :: [String] -> (Int, [(Int, Int)])
+parseLines :: [String] -> (Vertex, [Edge])
 parseLines (nodeCount:edgeList) = (read nodeCount, parseEdgeList edgeList)
 parseLines [] = error "Cannot parse empty file"
 
@@ -62,35 +41,33 @@ huge = "../generated-graphs/huge-topsort-gen.txt"
 
 -- Note: can use command line arguments I think like this: (args !! 0)
 
-filePath = huge
+benchmarkParsing :: FilePath -> IO Graph
+benchmarkParsing filePath = do
+    initialTime <- getTime
+    contents <- readFile filePath
+    let linesOfFile = lines contents
+    let parsed = parseLines linesOfFile
+    evaluate (rnf parsed)
+    startTime <- getTime
+    let graph = createGraph parsed
+    evaluate (rnf graph)
+    endTme <- getTime
+    putStrLn ("Read from file and converted to int in: " ++ secs (startTime - initialTime))
+    putStrLn ("Parsed graph in:  " ++ secs (endTme - startTime))
+    return graph
 
-parseGraphTest :: IO Int
-parseGraphTest = do
-    graph <- parseFile filePath
-    return (seq graph 0)
+benchmarkTopSort :: Graph -> IO ()
+benchmarkTopSort graph = do
+    startTime <- getTime
+    let sorted = topSort graph -- deepseq (topSort graph) (topSort graph)
+    evaluate (rnf sorted)
+    endTime <- getTime
+    putStrLn ("Sorted in: " ++ secs (endTime - startTime))
 
-runTest :: IO Int
-runTest = do
-    graph <- parseFile filePath
-    return (seq (topSort graph) 7)
-
--- main = secs <$> time_ someIOFunction >>= print
 
 main :: IO ()
 main = do
-    graph <- parseFile filePath
-    evaluate (rnf graph)
-    putStrLn filePath
+    let filePath = huge
     initializeTime
-    startTime <- getTime
-    let sorted = deepseq (topSort graph) (topSort graph)
-    print (last sorted)
-    endTime <- getTime
-    putStrLn (secs (endTime - startTime))
-
--- main = defaultMain [
---   bgroup "topsort" [ bench "parse graph"  $ nfIO parseGraphTest
---                ],
---   bgroup "topsort" [ bench "parse and topsort"  $ nfIO runTest
---                ]
---   ]
+    graph <- benchmarkParsing filePath
+    benchmarkTopSort graph
