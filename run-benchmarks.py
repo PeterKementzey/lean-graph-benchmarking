@@ -40,14 +40,14 @@ def printControlMessage(msg):
     print("\033[96m\n\n" + msg + "\n\n\033[0m")
 
 graphParameters = [
-    # (500, 2000, "small-sparse"),
-    # (500, 225000, "small-dense"),
+    (500, 2000, "small-sparse"),
+    (500, 225000, "small-dense"),
     # (3000, 10000, "medium-very-sparse"),
     # (3000, 500000, "medium-sparse"),
     # (3000, 8500000, "medium-dense"),
     # (3000, 12000000, "medium-very-dense"),
     # (6600, 450000, "maximum-working-size") ,
-    (30000, 2000000, "huge")
+    # (30000, 2000000, "huge")
 ]
 
 
@@ -63,7 +63,7 @@ printControlMessage("Generating graphs:")
 fileNames = []
 
 for p in graphParameters:
-    for i in (range(1)):
+    for i in (range(2)):
         fileNames.append(p[2] + str(i))
         print(fileNames[-1])
         generateDAG(p[0], p[1], fileNames[-1], i)
@@ -74,16 +74,25 @@ for p in graphParameters:
 printControlMessage("Building Lean:")
 subprocess.run("cd lean; ./build.sh ", shell=True)
 printControlMessage("Building Haskell:")
-subprocess.run("cd haskell; stack clean; stack build ", shell=True)
+subprocess.run("cd haskell; stack build ", shell=True)
 
 
 # run tests
 
-fileNames = list(map(lambda f: "../" + graphDirectory + f + fileExtension, fileNames))
+subprocess.run("cd lean/res; rm -f *; touch .keep ", shell=True)
+subprocess.run("cd haskell/res; rm -f *; touch .keep ", shell=True)
 
-printControlMessage("Running Lean Benchmarks")
-subprocess.run("cd lean; ./build/bin/Benchmark " + fileNames[-1], shell=True)
-printControlMessage("Running Haskell Benchmarks")
-subprocess.run("cd haskell; stack run " + fileNames[-1], shell=True)
+relativeFileNames = list(map(lambda f: "../" + graphDirectory + f + fileExtension, fileNames))
+resultsFolder = " >> res/"
+
+printControlMessage("Running Benchmarks:")
+for (fileName, relativeFileName) in zip(fileNames, relativeFileNames):
+    for i in range(5):
+        print(fileName + " iteration " + str(i))
+        subprocess.run("cd lean; ./build/bin/Benchmark " + relativeFileName + resultsFolder + fileName + fileExtension, shell=True)
+        subprocess.run("cd haskell; stack run " + relativeFileName + resultsFolder + fileName + fileExtension, shell=True)
 
 print("\n\n")
+
+# compile results
+
