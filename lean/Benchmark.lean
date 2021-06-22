@@ -50,7 +50,7 @@ def benchmarkTopSortSafe (graph : Graph Bool Nat) : IO Unit := do
 
 def main (argv : List String) : IO Unit := do
 
-  let filePath := huge
+  let filePath := argv.head!
   
   let graph <- benchmarkParsing filePath
   benchmarkTopSort graph

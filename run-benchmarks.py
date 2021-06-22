@@ -3,6 +3,7 @@
 import random, subprocess
 
 graphDirectory = "generated-graphs/"
+fileExtension = ".txt"
 
 def generateDAG (nodeCount, edgeCount, fileName, seed):
     random.seed(seed)
@@ -23,7 +24,7 @@ def generateDAG (nodeCount, edgeCount, fileName, seed):
         orderedPair = newPair if getPosition(newPair[0]) <= getPosition(newPair[1]) else swapTuple(newPair)
         edges.append(orderedPair)
 
-    fileHandle = open(graphDirectory + fileName + ".txt", 'w')
+    fileHandle = open(graphDirectory + fileName + fileExtension, 'w')
     print(nodeCount, file=fileHandle)
     for pair in edges:
         print (str(pair[0]) + " " + str(pair[1]), file=fileHandle)
@@ -52,7 +53,7 @@ graphParameters = [
 
 # remove all previously generated graphs first
 
-subprocess.run("rm -f " + graphDirectory + "*.txt", shell=True)
+subprocess.run("rm -f " + graphDirectory + "*" + fileExtension, shell=True)
 
 
 # build generated graphs
@@ -78,8 +79,10 @@ subprocess.run("cd haskell; stack clean; stack build ", shell=True)
 
 # run tests
 
+fileNames = list(map(lambda f: "../" + graphDirectory + f + fileExtension, fileNames))
+
 printControlMessage("Running Lean Benchmarks")
-subprocess.run("cd lean; ./build/bin/Benchmark ", shell=True)
+subprocess.run("cd lean; ./build/bin/Benchmark " + fileNames[-1], shell=True)
 printControlMessage("Running Haskell Benchmarks")
 subprocess.run("cd haskell; stack run ", shell=True)
 
