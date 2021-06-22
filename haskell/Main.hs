@@ -1,11 +1,11 @@
 module Main where
 
-import Data.Graph
-import System.IO
-import System.Environment
-import Criterion.Measurement
-import Control.DeepSeq
-import Control.Exception
+import Data.Graph ( buildG, topSort, Edge, Graph, Vertex )
+import System.IO ()
+import System.Environment ( getArgs )
+import Criterion.Measurement ( getTime, initializeTime, secs )
+import Control.DeepSeq ( NFData(rnf) )
+import Control.Exception ( evaluate )
 
 createGraph :: (Vertex, [Edge]) -> Graph
 createGraph (nodeCount, edgeList) =
