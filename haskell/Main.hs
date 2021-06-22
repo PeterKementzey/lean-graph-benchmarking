@@ -2,6 +2,7 @@ module Main where
 
 import Data.Graph
 import System.IO
+import System.Environment
 import Criterion.Measurement
 import Control.DeepSeq
 import Control.Exception
@@ -26,21 +27,6 @@ parseFile filePath = do
     let parsed = parseLines linesOfFile
     return (createGraph parsed)
 
-
-bitcoinSize = "../generated-graphs/stanford-bitcoin-sized-topsort-gen.txt"
-maximumSize = "../generated-graphs/maximum-working-size-topsort-gen.txt"
-mediumDense = "../generated-graphs/medium-dense-topsort-gen.txt"
-mediumVeryDense = "../generated-graphs/medium-very-dense-topsort-gen.txt"
-mediumSparse = "../generated-graphs/medium-sparse-topsort-gen.txt"
-mediumVerySparse = "../generated-graphs/medium-very-sparse-topsort-gen.txt"
-smallDense = "../generated-graphs/small-dense-topsort-gen.txt"
-smallSparse = "../generated-graphs/small-sparse-topsort-gen.txt"
-testGraph :: [Char]
-testGraph = "../generated-graphs/test-topsort-gen.txt"
-huge = "../generated-graphs/huge-topsort-gen.txt"
-
--- Note: can use command line arguments I think like this: (args !! 0)
-
 benchmarkParsing :: FilePath -> IO Graph
 benchmarkParsing filePath = do
     initialTime <- getTime
@@ -59,7 +45,7 @@ benchmarkParsing filePath = do
 benchmarkTopSort :: Graph -> IO ()
 benchmarkTopSort graph = do
     startTime <- getTime
-    let sorted = topSort graph -- deepseq (topSort graph) (topSort graph)
+    let sorted = topSort graph
     evaluate (rnf sorted)
     endTime <- getTime
     putStrLn ("Sorted in: " ++ secs (endTime - startTime))
@@ -67,7 +53,8 @@ benchmarkTopSort graph = do
 
 main :: IO ()
 main = do
-    let filePath = huge
+    args <- getArgs
+    let filePath = head args
     initializeTime
     graph <- benchmarkParsing filePath
     benchmarkTopSort graph

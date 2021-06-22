@@ -40,13 +40,13 @@ def printControlMessage(msg):
     print("\033[96m\n\n" + msg + "\n\n\033[0m")
 
 graphParameters = [
-    (500, 2000, "small-sparse"),
-    (500, 225000, "small-dense"),
-    (3000, 10000, "medium-very-sparse"),
-    (3000, 500000, "medium-sparse"),
-    (3000, 8500000, "medium-dense"),
-    (3000, 12000000, "medium-very-dense"),
-    (6600, 450000, "maximum-working-size") ,
+    # (500, 2000, "small-sparse"),
+    # (500, 225000, "small-dense"),
+    # (3000, 10000, "medium-very-sparse"),
+    # (3000, 500000, "medium-sparse"),
+    # (3000, 8500000, "medium-dense"),
+    # (3000, 12000000, "medium-very-dense"),
+    # (6600, 450000, "maximum-working-size") ,
     (30000, 2000000, "huge")
 ]
 
@@ -63,7 +63,7 @@ printControlMessage("Generating graphs:")
 fileNames = []
 
 for p in graphParameters:
-    for i in (range(3)):
+    for i in (range(1)):
         fileNames.append(p[2] + str(i))
         print(fileNames[-1])
         generateDAG(p[0], p[1], fileNames[-1], i)
@@ -84,5 +84,6 @@ fileNames = list(map(lambda f: "../" + graphDirectory + f + fileExtension, fileN
 printControlMessage("Running Lean Benchmarks")
 subprocess.run("cd lean; ./build/bin/Benchmark " + fileNames[-1], shell=True)
 printControlMessage("Running Haskell Benchmarks")
-subprocess.run("cd haskell; stack run ", shell=True)
+subprocess.run("cd haskell; stack run " + fileNames[-1], shell=True)
 
+print("\n\n")
