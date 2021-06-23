@@ -38,8 +38,8 @@ benchmarkParsing filePath = do
     let graph = createGraph parsed
     evaluate (rnf graph)
     endTme <- getTime
-    putStrLn ("Read from file and converted to int in: " ++ secs (startTime - initialTime))
-    putStrLn ("Parsed graph in:  " ++ secs (endTme - startTime))
+    -- putStrLn ("Read from file and converted to int in: " ++ secs (startTime - initialTime))
+    -- putStrLn ("Parsed graph in:  " ++ secs (endTme - startTime))
     return graph
 
 benchmarkTopSort :: Graph -> IO ()
@@ -48,7 +48,8 @@ benchmarkTopSort graph = do
     let sorted = topSort graph
     evaluate (rnf sorted)
     endTime <- getTime
-    putStrLn ("Sorted in: " ++ secs (endTime - startTime))
+    -- putStrLn ("Sorted in: " ++ secs (endTime - startTime))
+    putStrLn (secs (endTime - startTime))
 
 
 main :: IO ()
