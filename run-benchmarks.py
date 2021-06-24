@@ -1,9 +1,18 @@
 #!/usr/bin/python3
 
-import random, subprocess
+import random, subprocess, statistics
 
 graphDirectory = "generated-graphs/"
 fileExtension = ".txt"
+
+graphParameters = [
+    (1500, 700000, "sparse"),
+    (1500, 2000000, "dense"),
+    (1500, 3000000, "very-dense"),
+    (20000, 4000000, "large"),
+]
+iterationCount = 5
+graphMulitiplicationCount = 5
 
 def generateDAG (nodeCount, edgeCount, fileName, seed):
     random.seed(seed)
@@ -39,20 +48,6 @@ def generateDAG (nodeCount, edgeCount, fileName, seed):
 def printControlMessage(msg):
     print("\033[96m\n\n" + msg + "\n\n\033[0m")
 
-graphParameters = [
-    # (500, 2000, "small-sparse"), # too small
-    (500, 225000, "small-dense"),
-    # (3000, 10000, "medium-very-sparse"), # too small
-    (3000, 500000, "medium-sparse"),
-    # (3000, 8500000, "medium-dense"),
-    # (3000, 12000000, "medium-very-dense"),
-    # (6600, 450000, "maximum-working-size") ,
-    # (30000, 2000000, "huge"),
-    # (70000, 7000000, "superhuge")
-]
-iterationCount = 3
-graphMulitiplicationCount = 1
-
 # 
 # generate graphs
 # 
@@ -77,7 +72,7 @@ for p in graphParameters:
 # 
 
 printControlMessage("Building Lean:")
-# subprocess.run("cd lean; ./build.sh ", shell=True)
+subprocess.run("cd lean; chmod +x build.sh; ./build.sh ", shell=True)
 printControlMessage("Building Haskell:")
 subprocess.run("cd haskell; stack build ", shell=True)
 
@@ -93,6 +88,7 @@ relativeFileNames = list(map(lambda f: "../" + graphDirectory + f + fileExtensio
 resultsFolder = "res/"
 
 printControlMessage("Running Benchmarks:")
+print("This might take a while...\n")
 for (fileName, relativeFileName) in zip(fileNames, relativeFileNames):
     print(fileName)
     for i in range(iterationCount):
@@ -110,8 +106,8 @@ def parseResults(fileLocation):
     fileLines = []
     for line in fileHandle:
         if "μs" in line:
-            # raise Exception("Result is too small, below 1 ms: '" + line.strip('\n') + "' in " + fileLocation) # print filename
-            print("Result is too small, below 1 ms: '" + line.strip('\n') + "' in " + fileLocation) # print filename
+            raise Exception("Result is too small, below 1 ms: '" + line.strip('\n') + "' in " + fileLocation)
+            # print("Result is too small, below 1 ms: '" + line.strip('\n') + "' in " + fileLocation)
         elif "ms" in line:
             temp = line.strip(" ms\n")
             fileLines.append(int(float(temp)))
@@ -121,45 +117,75 @@ def parseResults(fileLocation):
         else:
             raise Exception("Time unit not found: " + line)
     fileHandle.close()
-    # print(fileLines)
     return fileLines
+
+def arrayToCSVLine(array):
+    res = ""
+    for x in array:
+        res = res + str(x) + ','
+    res = res[:-1]
+    return res
+
 
 printControlMessage("Compiling results:")
 
-# don't forget lean has safe and unsafe
-
 leanResultFileLocations = list(map(lambda f: "lean/" + resultsFolder + f + fileExtension, fileNames))
 haskellResultFileLocations = list(map(lambda f: "haskell/" + resultsFolder + f + fileExtension, fileNames))
-haskellResultSaveLocations = list(map(lambda f: resultsFolder + "haskell-" + f + fileExtension, fileNames))
-leanUnsafeResultSaveLocations = list(map(lambda f: resultsFolder + "lean-unsafe-" + f + fileExtension, fileNames))
-leanSafeResultSaveLocations = list(map(lambda f: resultsFolder + "lean-safe-" + f + fileExtension, fileNames))
 
+resultsNames = []
+resultsUnsafe = []
+resultsSafe = []
+resultsHaskell = []
+
+sameGraphCounter = 0
+safe = []
+unsafe = []
 print("Lean:")
-for (fileName, fileLocation, unsafeSaveLocation, safeSaveLocation) in zip(fileNames, leanResultFileLocations, leanUnsafeResultSaveLocations, leanSafeResultSaveLocations):
+for (fileName, fileLocation) in zip(fileNames, leanResultFileLocations):
     print(fileName)
     res = parseResults(fileLocation)
-    safe = []
-    unsafe = []
     for i in range(len(res)):
         if i % 2 == 0: unsafe.append(res[i])
         else: safe.append(res[i])
-    
-    # print("unsafe:")
-    # print("mean: " +  str(statistics.mean(unsafe)))
-    # print("standard deviation: " +  str(statistics.stdev(unsafe)))
-    # print("safe:")
-    # print("mean: " +  str(statistics.mean(safe)))
-    # print("standard deviation: " +  str(statistics.stdev(safe)) + '\n')
 
+    sameGraphCounter += 1
+    if sameGraphCounter % graphMulitiplicationCount == 0:
+        resultsNames.append(fileName[:-1])
+        resultsUnsafe.append(statistics.mean(unsafe))
+        resultsSafe.append(statistics.mean(safe))
+        safe = []
+        unsafe = []
+
+
+res = []
+sameGraphCounter = 0
 print("\nHaskell:")
-for (fileName, fileLocation, saveLocation) in zip(fileNames, haskellResultFileLocations, haskellResultSaveLocations):
+for (fileName, fileLocation) in zip(fileNames, haskellResultFileLocations):
     print(fileName)
-    res = parseResults(fileLocation)
-    # print("mean: " +  str(statistics.mean(res)))
-    # print("standard deviation: " +  str(statistics.stdev(res)) + '\n')
+    res = res + parseResults(fileLocation)
 
-    fileHandle = open(saveLocation, 'w')
-    print(res, file=fileHandle)
-    fileHandle.close()
+    sameGraphCounter += 1
+    if sameGraphCounter % graphMulitiplicationCount == 0:
+        resultsHaskell.append(statistics.mean(res))
+        res = []
 
+# 
+# Save to CVS file
+# 
 
+printControlMessage("Saving means to results.csv")
+
+fileHandle = open("results.csv", 'w')
+
+for name in resultsNames: fileHandle.write(',' + name)
+fileHandle.write("\nLean unsafe,")
+fileHandle.write(arrayToCSVLine(resultsUnsafe))
+fileHandle.write("\nLean safe,")
+fileHandle.write(arrayToCSVLine(resultsSafe))
+fileHandle.write("\nHaskell,")
+fileHandle.write(arrayToCSVLine(resultsHaskell))
+fileHandle.write("\n")
+
+fileHandle.close()
+
+printControlMessage("Done")
