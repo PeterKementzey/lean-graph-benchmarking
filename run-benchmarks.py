@@ -110,7 +110,9 @@ def parseResults(fileLocation):
             # print("Result is too small, below 1 ms: '" + line.strip('\n') + "' in " + fileLocation)
         elif "ms" in line:
             temp = line.strip(" ms\n")
-            fileLines.append(int(float(temp)))
+            asInt = int(float(temp))
+            if asInt < 15: raise Exception("Result is too small: '" + line.strip('\n') + "' in " + fileLocation)
+            fileLines.append(asInt)
         elif "s" in line:
             temp = line.strip(" s\n")
             fileLines.append(int(float(temp) * 1000)) # convert to ms
