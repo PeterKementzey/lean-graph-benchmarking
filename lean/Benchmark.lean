@@ -23,7 +23,7 @@ def benchmarkTopSort (graph : Graph Bool Nat) : IO Unit := do
   let stop <- IO.monoMsNow
   IO.println ((toString (stop - start)) ++ " ms")
   -- IO.println ("Sorted graph in: " ++ (toString (stop - start)) ++ " ms")
-  evaluate res
+  evaluate res.back
 
 def benchmarkTopSortSafe (graph : Graph Bool Nat) : IO Unit := do
   let start <- IO.monoMsNow
@@ -31,23 +31,23 @@ def benchmarkTopSortSafe (graph : Graph Bool Nat) : IO Unit := do
   let stop <- IO.monoMsNow
   IO.println ((toString (stop - start)) ++ " ms")
   -- IO.println ("Safely sorted graph in: " ++ (toString (stop - start)) ++ " ms")
-  evaluate res
+  evaluate res.get!.back
 
-def benchmarkReachableDepthFirst (graph : Graph Bool Nat) : IO Unit := do
+def benchmarkReachableDepthFirst (graph : Graph Bool Nat) (source : Nat) : IO Unit := do
   let start <- IO.monoMsNow
-  let res <- graph.reachableDepthFirst 0
+  let res <- graph.reachableDepthFirst source
   let stop <- IO.monoMsNow
   IO.println ((toString (stop - start)) ++ " ms")
   -- IO.println ("Safely sorted graph in: " ++ (toString (stop - start)) ++ " ms")
-  evaluate res
+  evaluate res.back
 
-def benchmarkReachableBreadthFirst (graph : Graph Bool Nat) : IO Unit := do
+def benchmarkReachableBreadthFirst (graph : Graph Bool Nat) (source : Nat) : IO Unit := do
   let start <- IO.monoMsNow
-  let res <- graph.reachableBreadthFirst 0
+  let res <- graph.reachableBreadthFirst source
   let stop <- IO.monoMsNow
   IO.println ((toString (stop - start)) ++ " ms")
   -- IO.println ("Safely sorted graph in: " ++ (toString (stop - start)) ++ " ms")
-  evaluate res
+  evaluate res.back
 
 def main (argv : List String) : IO Unit := do
 
@@ -61,7 +61,7 @@ def main (argv : List String) : IO Unit := do
       benchmarkTopSort graph
       benchmarkTopSortSafe graph
     | "reachable" =>
-      benchmarkReachableDepthFirst graph
-      benchmarkReachableBreadthFirst graph
+      benchmarkReachableDepthFirst graph 3
+      benchmarkReachableBreadthFirst graph 3
     | _ => panic! "Benchmark type not recognized"
 
