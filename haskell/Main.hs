@@ -1,6 +1,7 @@
 module Main where
 
-import Data.Graph ( buildG, topSort, Edge, Graph, Vertex )
+import Data.Graph
+    ( buildG, reachable, topSort, Edge, Graph, Vertex )
 import System.IO ()
 import System.Environment ( getArgs )
 import Criterion.Measurement ( getTime, initializeTime, secs )
@@ -51,11 +52,22 @@ benchmarkTopSort graph = do
     -- putStrLn ("Sorted in: " ++ secs (endTime - startTime))
     putStrLn (secs (endTime - startTime))
 
+benchmarkReachable :: Graph -> IO ()
+benchmarkReachable graph = do
+    startTime <- getTime
+    let sorted = reachable graph 0
+    evaluate (rnf sorted)
+    endTime <- getTime
+    -- putStrLn ("Found reachable nodes in: " ++ secs (endTime - startTime))
+    putStrLn (secs (endTime - startTime))
 
 main :: IO ()
 main = do
     args <- getArgs
     let filePath = head args
+    let benchmark = last args
     initializeTime
     graph <- benchmarkParsing filePath
-    benchmarkTopSort graph
+    if benchmark == "topsort" then benchmarkTopSort graph
+    else if benchmark == "reachable" then benchmarkReachable graph
+    else error "Not recognized"
