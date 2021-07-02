@@ -94,7 +94,7 @@ print("This might take a while...\n")
 for (fileName, relativeFileName) in zip(fileNames, relativeFileNames):
     print(fileName)
     for i in range(iterationCount):
-        subprocess.run("cd lean; ./build/bin/Benchmark " + relativeFileName + " >> " + resultsFolder + fileName + fileExtension, shell=True)
+        subprocess.run("cd lean; ./build/bin/Benchmark " + relativeFileName + " topsort >> " + resultsFolder + fileName + fileExtension, shell=True)
         subprocess.run("cd haskell; stack run " + relativeFileName + " topsort >> " + resultsFolder + fileName + fileExtension, shell=True)
 
 print("\n\n")

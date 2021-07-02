@@ -1,6 +1,7 @@
 import Graph.Graph
 import Graph.Parser
 import Graph.TopologicalSort
+import Graph.Search
 
 /-- This function ensures that the expression does not get dropped by compiler optimizations. -/
 def evaluate [ToString α] (expression : α) : IO Unit := IO.FS.writeFile "/dev/null" (toString expression)
@@ -32,11 +33,35 @@ def benchmarkTopSortSafe (graph : Graph Bool Nat) : IO Unit := do
   -- IO.println ("Safely sorted graph in: " ++ (toString (stop - start)) ++ " ms")
   evaluate res
 
+def benchmarkReachableDepthFirst (graph : Graph Bool Nat) : IO Unit := do
+  let start <- IO.monoMsNow
+  let res <- graph.reachableDepthFirst 0
+  let stop <- IO.monoMsNow
+  IO.println ((toString (stop - start)) ++ " ms")
+  -- IO.println ("Safely sorted graph in: " ++ (toString (stop - start)) ++ " ms")
+  evaluate res
+
+def benchmarkReachableBreadthFirst (graph : Graph Bool Nat) : IO Unit := do
+  let start <- IO.monoMsNow
+  let res <- graph.reachableBreadthFirst 0
+  let stop <- IO.monoMsNow
+  IO.println ((toString (stop - start)) ++ " ms")
+  -- IO.println ("Safely sorted graph in: " ++ (toString (stop - start)) ++ " ms")
+  evaluate res
 
 def main (argv : List String) : IO Unit := do
 
   let filePath := argv.head!
+  let benchmark := argv.get! 1
   
   let graph <- benchmarkParsing filePath
-  benchmarkTopSort graph
-  benchmarkTopSortSafe graph
+
+  match benchmark with
+    | "topsort" =>
+      benchmarkTopSort graph
+      benchmarkTopSortSafe graph
+    | "reachable" =>
+      benchmarkReachableDepthFirst graph
+      benchmarkReachableBreadthFirst graph
+    | _ => panic! "Benchmark type not recognized"
+
