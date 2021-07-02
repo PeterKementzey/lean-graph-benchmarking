@@ -55,7 +55,7 @@ benchmarkTopSort graph = do
 benchmarkReachable :: Graph -> IO ()
 benchmarkReachable graph = do
     startTime <- getTime
-    let sorted = reachable graph 0
+    let sorted = reachable graph 3
     evaluate (rnf sorted)
     endTime <- getTime
     -- putStrLn ("Found reachable nodes in: " ++ secs (endTime - startTime))
