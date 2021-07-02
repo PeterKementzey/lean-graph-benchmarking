@@ -6,10 +6,12 @@ graphDirectory = "generated-graphs/"
 fileExtension = ".txt"
 
 graphParameters = [
-    (1500, 700000, "sparse"),
-    (1500, 2000000, "dense"),
-    (1500, 3000000, "very-dense"),
-    (20000, 4000000, "large"),
+    (2000, 1000000, "2K-1M"),
+    (2000, 4000000, "2K-4M"),
+    (20000, 1000000, "20K-1M"),
+    (20000, 4000000, "20K-4M"),
+    (20000, 7000000, "20K-7M"),
+    (30000, 7000000, "30K-7M"),
 ]
 iterationCount = 5
 graphMulitiplicationCount = 5
