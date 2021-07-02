@@ -83,21 +83,37 @@ subprocess.run("cd haskell; stack build ", shell=True)
 # run tests
 # 
 
-subprocess.run("cd lean/res; rm -f *; touch .keep ", shell=True)
-subprocess.run("cd haskell/res; rm -f *; touch .keep ", shell=True)
-
-relativeFileNames = list(map(lambda f: "../" + graphDirectory + f + fileExtension, fileNames))
 resultsFolder = "res/"
 
-printControlMessage("Running Benchmarks:")
-print("This might take a while...\n")
-for (fileName, relativeFileName) in zip(fileNames, relativeFileNames):
-    print(fileName)
-    for i in range(iterationCount):
-        subprocess.run("cd lean; ./build/bin/Benchmark " + relativeFileName + " topsort >> " + resultsFolder + fileName + fileExtension, shell=True)
-        subprocess.run("cd haskell; stack run " + relativeFileName + " topsort >> " + resultsFolder + fileName + fileExtension, shell=True)
+def runBenchmarks(fileNames, relativeFileNames, benchmark):
 
-print("\n\n")
+    subprocess.run("cd lean/res; rm -f *." + benchmark + ".txt; touch .keep ", shell=True)
+    subprocess.run("cd haskell/res; rm -f *." + benchmark + ".txt; touch .keep ", shell=True)
+
+    printControlMessage("Running Benchmarks: " + benchmark)
+    print("This might take a while...\n")
+    for (fileName, relativeFileName) in zip(fileNames, relativeFileNames):
+        print(fileName)
+        for i in range(iterationCount):
+            subprocess.run("cd lean; ./build/bin/Benchmark " + relativeFileName + " " + benchmark + " >> " + resultsFolder + fileName + "." + benchmark + fileExtension, shell=True)
+            subprocess.run("cd haskell; stack run " + relativeFileName + " " + benchmark + " >> " + resultsFolder + fileName + "." + benchmark + fileExtension, shell=True)
+
+    print("\n\n")
+
+relativeFileNames = list(map(lambda f: "../" + graphDirectory + f + fileExtension, fileNames))
+
+stanfordFileNames = [
+    "email-EuAll",
+    "web-NotreDame",
+    "web-Stanford",
+    "web-BerkStan",
+]
+stanfordrelativeFileNames = list(map(lambda f: "../" + "stanford-networks/" + f + ".txt", stanfordFileNames))
+
+runBenchmarks(fileNames, relativeFileNames, "topsort")
+runBenchmarks(stanfordFileNames, stanfordrelativeFileNames, "reachable")
+
+exit(0)
 
 # 
 # compile results
