@@ -1,1 +1,2 @@
-generated-graphs/
+*.txt
+*.csv
